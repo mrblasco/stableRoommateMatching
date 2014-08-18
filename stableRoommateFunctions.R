@@ -1,28 +1,21 @@
-## Example from Wikipedia
-## number of participants
-n = 6;
+## Stable Roommate Problem
+## contact: ablasco@fas.harvard.edu
+## First version: 17 Aug, 2014
+##--------------------------------------------##
 
-## Preferences - persons
-persons = matrix(
-  c(
-  3,4,2,6,5,1,  
-  6,5,4,1,3,2,  
-  2,4,5,1,6,3,  
-  5,2,3,6,1,4, 
-  3,1,2,4,6,5,
-  5,1,3,4,2,6), 
-  nrow=n, byrow=T);
 
-## Preferences - ranks
-ranks = matrix(nrow=n,ncol=6)
-for(i in 1:n) {
-  for (j in 1:n) {
-    ranks[i, j] = which(persons[i, ]==j)
-  } 
+## Organize preferences by persons and ranks
+makeRanks = function() {
+  ranks = matrix(nrow=n, ncol=n)
+  for(i in 1:n) {
+    for (j in 1:n) {
+      ranks[i, j] = which(persons[i, ]==j)
+    } 
+  }  
+  return(ranks)
 }
-## You may want to add checks here!
 
-## Preferences - function
+## Preferences
 getPreferences = function(x, i) {
   y = persons[x, i] ## i-th ranked person by x
   r = ranks[y, x] ## rank of x in i-th person's preference list
@@ -30,9 +23,9 @@ getPreferences = function(x, i) {
   return(c(y, r))
 }
 
-## Irvin's Phase I 
+## Irving's Phase I of the algorithm
 phaseI = function() {
-  ## Initialize (global)
+  ## Initialize (global vars)
   holds_proposal <<- rep(FALSE, n);
   rightperson <<- persons[, n];  ## the last column
   rightrank <<- rep(n, n); ## worst
@@ -124,13 +117,3 @@ phaseII = function() {
   }
   return(solution_found)
 }
-
-
-### Get the matchings
-phaseI()
-phaseII()
-matrix(c(1:n,rightperson), ncol=2)
-
-
-
-
