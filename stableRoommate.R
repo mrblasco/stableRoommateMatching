@@ -26,6 +26,7 @@ for(i in 1:n) {
 getPreferences = function(x, i) {
   y = persons[x, i] ## i-th ranked person by x
   r = ranks[y, x] ## rank of x in i-th person's preference list
+  ##return(list(nextPerson = y, nextPersonRank = r))
   return(c(y, r))
 }
 
@@ -64,18 +65,15 @@ phaseI = function() {
   return(TRUE);
 }
 
-### Inputs:
+### all-or-nothing cycles
 seekCycle = function() { 
   ## initialize
-  mycycle=rep();
-  secondperson = persons[, n];  ## the last column
-  secondrank = rep(n, n); ## worst
-  secondrightrank=rep(NA, n);
+  mycycle = rep(NA, n);
   for (i in 1:n) {
-    if ( leftrank[i] < rightrank[i]) {break}
+    if ( leftrank[i] < rightrank[i] ) {break}
   }
   if ( leftrank[i] >= rightrank[i] ) {
-    return(c(1, 1, NA)) ## return empty cycle
+    return( list(first=1,last=1,mycycle=NA) ) ## return empty cycle
   } else { 
     last = 1;
     test_until = FALSE
@@ -89,25 +87,49 @@ seekCycle = function() {
         out = getPreferences(i, p);
         if ( out[2] <= rightrank[out[1]] ) {test_until_2 = TRUE}
       }
-      secondrank[i] = p;
-      secondperson[i] = out[1];
-      secondrightrank[i] = out[2];
+      secondrank[i] <<- p;
+      secondperson[i] <<- out[1];
+      secondrightrank[i] <<- out[2];
       i = rightperson[secondperson[i]]
-      if (i %in% mycycle ) {test_until = TRUE} 
+      if ( i %in% mycycle ) {test_until = TRUE} 
     }
-    last = last -1;
+    last = last - 1;
     first = last - 1;
-    while ( mycycle[first] != i ) {
-      first = first -1;
-    }
+    while ( mycycle[first] != i ) {first = first -1; }
     return(list(first=first,last=last,mycycle=mycycle));
   }
 }
 
-out = seekCycle()
+## Second phase 
+phaseII = function() { 
+  solution_possible = TRUE;
+  solution_found = FALSE;
+  ## Initialize
+  secondperson <<- persons[, n];  ## the last column
+  secondrank <<- rep(n, n); ## worst
+  secondrightrank <<- rep(NA, n);
+  while ( solution_possible==TRUE & solution_found==FALSE) {
+    out = seekCycle() 
+    if ( !any(!is.na(out$mycycle)) ) { 
+      solution_found=TRUE
+    } else {
+      for (i in out$mycycle[!is.na(out$mycycle)]) { 
+        leftrank[i] <<- secondrank[i];
+        leftperson[i] <<- secondperson[i];
+        rightrank[leftperson[i]] <<- secondrightrank[i]
+        rightperson[leftperson[i]] <<- i
+      }
+      if ( any(leftrank > rightrank) ) {solution_possible=FALSE} 
+    }
+  }
+  return(solution_found)
+}
 
-out$first
 
+### Get the matchings
+phaseI()
+phaseII()
+matrix(c(1:n,rightperson), ncol=2)
 
 
 
