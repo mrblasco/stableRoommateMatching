@@ -17,6 +17,7 @@ persons = matrix(
   5,1,3,4,2), 
   nrow=6, byrow=T);
 persons = cbind(persons, 1:nrow(persons))
+table(persons) ## check
 
 
 ## Run the algorithm
@@ -37,6 +38,7 @@ persons = matrix(
     5,4,7,1,2,3,6),
   nrow=8, byrow=T)
 persons = cbind(persons, 1:nrow(persons))
+table(persons) ## check
 
 ## Run the algorithm
 outI <- phaseI(persons)
