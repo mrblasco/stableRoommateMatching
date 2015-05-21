@@ -2,6 +2,7 @@ stableRoomateMatching
 =====================
 
 R implementation of the pseudo code by Stephan Mertens (2014) based on Irving's algorithm (1985).
+**Preliminary and incomplete**
 
 
 Example from Wikipedia 
